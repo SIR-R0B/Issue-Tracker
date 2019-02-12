@@ -1,30 +1,11 @@
-function handler() {
+
+function Handler() {
   
-  this.firstfunction = function (input) {
+  this.create = function (input) {
    
-    var result;
-    
-    return result;
-  };
+    //return result;
   
-  this.firstfunction = function (input) {
-   
-    var result;
-    
-    return result;
-  };
-  
-  this.firstfunction = function (input) {
-   
-    var result;
-    
-    return result;
-  };
-  
-  this.firstfunction = function (input) {
-   
-    var result;
-    
-    return result;
-  };
-};
+}
+}
+
+module.exports = Handler;
