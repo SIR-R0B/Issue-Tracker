@@ -84,8 +84,18 @@ module.exports = function (app) {
     })
     
     .delete(function (req, res){
-    issue.findByIdAndRemove(req.body._id,(err,data)=>{
-    return (err ? err.stack : res.json(data));
+    issue.findOneAndDelete({_id: req.body._id},(err,data)=>{
+    
+      
+      if(err){ 
+        console.log(err.stack);
+        return res.json('_id error');
+      } 
+      else{
+        if(data == undefined) return res.json('could not delete ' + req.body._id);
+        return res.json('deleted ' + req.body._id);
+      }
+
     });
     
     });
