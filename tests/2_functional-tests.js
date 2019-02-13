@@ -15,6 +15,8 @@ chai.use(chaiHttp);
 
 suite('Functional Tests', function() {
   
+  var _idToDelete;
+  
     suite('POST /api/issues/{project} => object with issue data', function() {
       
       test('Every field filled in', function(done) {
@@ -47,6 +49,8 @@ suite('Functional Tests', function() {
           created_by: 'Functional Test - Every field filled in'
         })
         .end(function(err, res){
+         _idToDelete = res.body[0]._id;
+         console.log('delete me: ' + _idToDelete);
           assert.equal(res.status, 200);
           assert.equal(res.body[0].issue_title, 'Title');
           assert.equal(res.body[0].issue_text, 'text');
@@ -135,15 +139,51 @@ suite('Functional Tests', function() {
       });
       
       test('One filter', function(done) {
-        done();
+         chai.request(server)
+        .get('/api/issues/test')
+        .query({open: false})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.isArray(res.body);
+          assert.property(res.body[0], 'issue_title');
+          assert.property(res.body[0], 'issue_text');
+          assert.property(res.body[0], 'created_on');
+          assert.property(res.body[0], 'updated_on');
+          assert.property(res.body[0], 'created_by');
+          assert.property(res.body[0], 'assigned_to');
+          assert.property(res.body[0], 'open');
+          assert.equal(res.body[0].open, false); 
+          assert.property(res.body[0], 'status_text');
+          assert.property(res.body[0], '_id');
+          done();
       });
-      
+    });
+        
       test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
-      done();  
+     chai.request(server)
+        .get('/api/issues/test')
+        .query({open: false}, {status_text: 'In QA'})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.isArray(res.body);
+          assert.property(res.body[0], 'issue_title');
+          assert.property(res.body[0], 'issue_text');
+          assert.equal(res.body[0].status_text, 'In QA'); 
+          assert.property(res.body[0], 'created_on');
+          assert.property(res.body[0], 'updated_on');
+          assert.property(res.body[0], 'created_by');
+          assert.property(res.body[0], 'assigned_to');
+          assert.property(res.body[0], 'open');
+          assert.equal(res.body[0].open, false); 
+          assert.property(res.body[0], 'status_text');
+          assert.property(res.body[0], '_id');
+          done(); 
       });
       
     });
-    
+        
+  });
+  
     suite('DELETE /api/issues/{project} => text', function() {
       
       test('No _id', function(done) {
@@ -151,34 +191,22 @@ suite('Functional Tests', function() {
         .delete('/api/issues/test')
         .send()
         .end(function(err, res){
-          assert.equal(res.body, 'Error: No _id sent');
+          assert.equal(res.body, 'could not delete undefined');
           done();
       });
       });
       
       test('Valid _id', function(done) {
-       chai.request(server)
-        .get('/api/issues/test')
-        .end(function(err, res){
          chai.request(server)
-         .delete('/api/issues/test'+res.body[0]._id)
-         .end(function(err, res){
-          assert.equal(res.status, 200);
-          //response.should.be.json;
-          //response.body.should.be.a('object');
-          //response.body.should.have.property('REMOVED');
-          //response.body.REMOVED.should.be.a('object');
-          //response.body.REMOVED.should.have.property('name');
-          //response.body.REMOVED.should.have.property('_id');
-          //response.body.REMOVED.name.should.equal('Bat');
-          done();
-      });
-       }); 
-        
-      });
-      
+         .delete('/api/issues/test')
+         .send({_id: _idToDelete})
+         .end((err,res)=>{
+         assert.equal(res.body, 'deleted ' + _idToDelete);
+           done();
+         })
+       })   
     });
-
-});
+  });
+      
   
   
