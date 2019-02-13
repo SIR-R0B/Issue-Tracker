@@ -53,6 +53,7 @@ module.exports = function (app) {
     
     .post(function (req, res){
       var project = req.params.project;
+        if ((!req.body.issue_title)&&(!req.body.issue_text)&&(!req.body.created_by)) res.json('Required data missing');
       var issueTitle = req.body.issue_title;
       var issueText = req.body.issue_text;
       var createdOn = new Date();
@@ -78,9 +79,42 @@ module.exports = function (app) {
     })
     
     .put(function (req, res){
-      /*var project = req.params.project;
-      res.json('done');
-      */
+    
+    //if ((!req.body._id)&&(!req.body.issue_title)&&(!req.body.issue_text)&&(!req.body.created_by)&&(!req.body.assigned_to)&&(!req.body.status_text)&&(!req.body.open)) res.json('Error: No body');
+      
+      var _id            = req.body._id;
+      var setIssueTitle  = req.body.issue_title;
+      var setIssueText   = req.body.issue_text;
+      var setCreatedBy   = req.body.created_by;
+      var setAssignedTo  = req.body.assigned_to;
+      var setStatusText  = req.body.status_text;
+      var setOpenBool    = req.body.open;
+    
+    var obj = {
+      issue_title: setIssueTitle,
+      issue_text: setIssueText,
+      created_by: setCreatedBy,
+      assigned_to: setAssignedTo,
+      status_text: setStatusText,
+      open: setOpenBool, //undefined or false if checked
+      updated_on: new Date()
+    };
+    
+    issue.findOneAndUpdate({_id: req.body._id},{$set: obj}, {new: true}, (err,data) => {
+    
+      if(err){ 
+        console.log(err.stack);
+        return res.json('no updated field sent');
+      } 
+      else{
+        if(data == undefined) return res.json('could not update ' + req.body._id);
+        return res.json('successfully updated');
+      }
+      
+    
+    });
+    
+  
     })
     
     .delete(function (req, res){
