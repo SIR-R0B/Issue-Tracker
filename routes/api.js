@@ -40,11 +40,13 @@ module.exports = function (app) {
   app.route('/api/issues/:project')
   
     .get(function (req, res){
-      var project = req.params.project;
-      
-    issue.find({project_name: project},(err,data)=>{
+      var project = {project_name: req.params.project};
+    
+    var obj = Object.assign(project, req.query);
+    
+    issue.find(obj,(err,data)=>{
     return (err ? err.stack : res.json(data));
-    })
+    });
     
     })
     
@@ -118,8 +120,6 @@ module.exports = function (app) {
     
     .delete(function (req, res){
     
-    if(!req.body[0]) res.json('Error: No _id sent');
-    
     issue.findOneAndDelete({_id: req.body._id},(err,data)=>{
     
       
@@ -127,10 +127,10 @@ module.exports = function (app) {
         console.log(err.stack);
         return res.json('_id error');
       } 
-      else{
+      
         if(data == undefined) return res.json('could not delete ' + req.body._id);
         return res.json('deleted ' + req.body._id);
-      }
+
 
     });
     
