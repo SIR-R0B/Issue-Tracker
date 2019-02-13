@@ -12,7 +12,6 @@ var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 var ObjectId = require('mongodb').ObjectID;
 var mongoose = require('mongoose');
-var Handler = require('../controllers/handler.js');
 
 const CONNECTION_STRING = process.env.DB; 
 
@@ -37,8 +36,6 @@ var issue = mongoose.model('issue', issueModel);
 
 
 module.exports = function (app) {
-  
-  var issueHandler = new Handler();
 
   app.route('/api/issues/:project')
   
@@ -80,27 +77,29 @@ module.exports = function (app) {
     
     .put(function (req, res){
     
-    //if ((!req.body._id)&&(!req.body.issue_title)&&(!req.body.issue_text)&&(!req.body.created_by)&&(!req.body.assigned_to)&&(!req.body.status_text)&&(!req.body.open)) res.json('Error: No body');
+    var fieldsToSet = {};
+    var reqFields = [{updated_on: new Date()}];
+     
+    // take only the fields that were input to update the DB; first, create an array of only fields containing user input
+    
+    for (let elem in req.body) {
+    
+      var obj = {[elem]: req.body[elem]}
       
-      var _id            = req.body._id;
-      var setIssueTitle  = req.body.issue_title;
-      var setIssueText   = req.body.issue_text;
-      var setCreatedBy   = req.body.created_by;
-      var setAssignedTo  = req.body.assigned_to;
-      var setStatusText  = req.body.status_text;
-      var setOpenBool    = req.body.open;
+      if (req.body[elem]) reqFields.push(obj);
+
+    }
     
-    var obj = {
-      issue_title: setIssueTitle,
-      issue_text: setIssueText,
-      created_by: setCreatedBy,
-      assigned_to: setAssignedTo,
-      status_text: setStatusText,
-      open: setOpenBool, //undefined or false if checked
-      updated_on: new Date()
-    };
+    // if (reqFields.length < 3) res.json(''); // optional prevent use case submit valid _id field alone, auto updates the 'updated on' value
+    // convert the array back to an object so it can be used in the update call to the DB
     
-    issue.findOneAndUpdate({_id: req.body._id},{$set: obj}, {new: true}, (err,data) => {
+  for(let i = 0; i < reqFields.length; i++){
+    
+   fieldsToSet = Object.assign(fieldsToSet, reqFields[i]);
+    
+  }
+   //update the DB 
+    issue.findOneAndUpdate({_id: req.body._id},{$set: fieldsToSet}, {new: true}, (err,data) => {
     
       if(err){ 
         console.log(err.stack);
@@ -118,6 +117,9 @@ module.exports = function (app) {
     })
     
     .delete(function (req, res){
+    
+    if(!req.body[0]) res.json('Error: No _id sent');
+    
     issue.findOneAndDelete({_id: req.body._id},(err,data)=>{
     
       
