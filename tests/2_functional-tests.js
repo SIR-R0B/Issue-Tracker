@@ -77,18 +77,38 @@ suite('Functional Tests', function() {
         .put('/api/issues/test')
         .send({})
         .end(function(err, res){
-          assert.equal(res.body, 'Error: No body');
+          assert.equal(res.body, 'could not update undefined');
           done();
         });
       });
       
       test('One field to update', function(done) {
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({
+          _id: '5c641bd21059bf78b2aeee54',
+          status_text: 'In QA'})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body, 'successfully updated');
+          done();
+      });
+      });
         
+      test('Multiple fields to update', function(done) {
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({
+          _id: '5c641bd21059bf78b2aeee54',
+          status_text: 'In QA',
+          issue_text: 'This is just a test'})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body, 'successfully updated');
+          done();
       });
       
-      test('Multiple fields to update', function(done) {
-        
-      });
+    });
       
     });
     
@@ -115,11 +135,11 @@ suite('Functional Tests', function() {
       });
       
       test('One filter', function(done) {
-        
+        done();
       });
       
       test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
-        
+      done();  
       });
       
     });
@@ -127,13 +147,38 @@ suite('Functional Tests', function() {
     suite('DELETE /api/issues/{project} => text', function() {
       
       test('No _id', function(done) {
-        
+        chai.request(server)
+        .delete('/api/issues/test')
+        .send()
+        .end(function(err, res){
+          assert.equal(res.body, 'Error: No _id sent');
+          done();
+      });
       });
       
       test('Valid _id', function(done) {
+       chai.request(server)
+        .get('/api/issues/test')
+        .end(function(err, res){
+         chai.request(server)
+         .delete('/api/issues/test'+res.body[0]._id)
+         .end(function(err, res){
+          assert.equal(res.status, 200);
+          //response.should.be.json;
+          //response.body.should.be.a('object');
+          //response.body.should.have.property('REMOVED');
+          //response.body.REMOVED.should.be.a('object');
+          //response.body.REMOVED.should.have.property('name');
+          //response.body.REMOVED.should.have.property('_id');
+          //response.body.REMOVED.name.should.equal('Bat');
+          done();
+      });
+        
         
       });
       
     });
 
 });
+  
+  
