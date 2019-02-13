@@ -40,11 +40,16 @@ module.exports = function (app) {
   app.route('/api/issues/:project')
   
     .get(function (req, res){
-      var project = req.params.project;
-      
-    issue.find({project_name: project},(err,data)=>{
+      var project = {project_name: req.params.project};
+    
+    var obj = Object.assign(project, req.query);
+    
+    console.log(obj);
+    
+    
+    issue.find(obj,(err,data)=>{
     return (err ? err.stack : res.json(data));
-    })
+    });
     
     })
     

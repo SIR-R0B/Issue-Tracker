@@ -86,7 +86,7 @@ suite('Functional Tests', function() {
         chai.request(server)
         .put('/api/issues/test')
         .send({
-          _id: '5c641bd21059bf78b2aeee54',
+          _id: '5c642eec387f3a4f525b1dc5',
           status_text: 'In QA'})
         .end(function(err, res){
           assert.equal(res.status, 200);
@@ -99,7 +99,7 @@ suite('Functional Tests', function() {
         chai.request(server)
         .put('/api/issues/test')
         .send({
-          _id: '5c641bd21059bf78b2aeee54',
+          _id: '5c642eec387f3a4f525b1dc5',
           status_text: 'In QA',
           issue_text: 'This is just a test'})
         .end(function(err, res){
@@ -173,7 +173,7 @@ suite('Functional Tests', function() {
           //response.body.REMOVED.name.should.equal('Bat');
           done();
       });
-        
+       }); 
         
       });
       
