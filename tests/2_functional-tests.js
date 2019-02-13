@@ -29,19 +29,43 @@ suite('Functional Tests', function() {
         })
         .end(function(err, res){
           assert.equal(res.status, 200);
-          
-          //fill me in too!
-          
+          assert.equal(res.body[0].issue_title, 'Title');
+          assert.equal(res.body[0].issue_text, 'text');
+          assert.equal(res.body[0].created_by, 'Functional Test - Every field filled in');
+          assert.equal(res.body[0].assigned_to, 'Chai and Mocha');
+          assert.equal(res.body[0].status_text, 'In QA');
           done();
         });
       });
       
       test('Required fields filled in', function(done) {
-        
+       chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title: 'Title',
+          issue_text: 'text',
+          created_by: 'Functional Test - Every field filled in'
+        })
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body[0].issue_title, 'Title');
+          assert.equal(res.body[0].issue_text, 'text');
+          assert.equal(res.body[0].created_by, 'Functional Test - Every field filled in');
+          done();
+        });
       });
       
       test('Missing required fields', function(done) {
-        
+      chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          assigned_to: 'Chai and Mocha',
+          status_text: 'In QA'
+        })
+        .end(function(err, res){
+          assert.equal(res.body, 'Required data missing');
+          done();
+        });
       });
       
     });
@@ -49,7 +73,13 @@ suite('Functional Tests', function() {
     suite('PUT /api/issues/{project} => text', function() {
       
       test('No body', function(done) {
-        
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({})
+        .end(function(err, res){
+          assert.equal(res.body, 'Error: No body');
+          done();
+        });
       });
       
       test('One field to update', function(done) {
